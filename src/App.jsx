@@ -1,9 +1,21 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 
 function App() {
   const [breakCount, setBreakCount] = useState(5)
   const [sessionCount, setSessionCount] = useState(25)
+
+  useEffect(() => {
+    if (sessionCount < 1) {
+      setSessionCount(1)
+    }
+  }, [sessionCount])
+
+  useEffect(() => {
+    if (breakCount < 1) {
+      setBreakCount(1)
+    }
+  }, [breakCount])
 
   return (
     <main className='main'>
@@ -59,6 +71,20 @@ function App() {
         </div>
       </div>
       <div className='clock'>
+          <h2 className='clock-title' id='timer-label'>
+            Session
+          </h2>
+          <h2 className='clock-length' id='time-left'>
+            {sessionCount}:00
+          </h2>
+      </div>
+      <div className='clock-controls'>
+        <button className='clock-control' id='start_stop'>
+          Start/Stop
+        </button>
+        <button className='clock-control' id='reset'>
+          Reset
+        </button>
       </div>
     </main>
   )
