@@ -4,31 +4,26 @@ import './App.css'
 function App() {
   const [breakCount, setBreakCount] = useState(5);
   const [sessionCount, setSessionCount] = useState(25);
-  const [timeLeft, setTimeLeft] = useState(25 * 60); // in seconds
+  const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
+  const [onBreak, setOnBreak] = useState(false);
   const intervalRef = useRef(null);
-
-  useEffect(() => {
-    if (sessionCount < 1) {
-      setSessionCount(1);
-    }
-  }, [sessionCount]);
-
-  useEffect(() => {
-    if (breakCount < 1) {
-      setBreakCount(1);
-    }
-  }, [breakCount]);
 
   useEffect(() => {
     if (isRunning) {
       intervalRef.current = setInterval(() => {
-        setTimeLeft(prevTimeLeft => prevTimeLeft - 1);
+        setTimeLeft(prevTimeLeft => {
+          if (prevTimeLeft <= 0) {
+            setOnBreak(!onBreak);
+            return onBreak ? sessionCount * 60 : breakCount * 60;
+          }
+          return prevTimeLeft - 1;
+        });
       }, 1000);
 
       return () => clearInterval(intervalRef.current);
     }
-  }, [isRunning]);
+  }, [isRunning, onBreak, sessionCount, breakCount]);
 
   const toggleTimer = () => {
     setIsRunning(!isRunning);
@@ -39,6 +34,7 @@ function App() {
     setSessionCount(25);
     setBreakCount(5);
     setTimeLeft(25 * 60);
+    setOnBreak(false);
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
@@ -49,6 +45,42 @@ function App() {
     const seconds = timeInSeconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
+
+  useEffect(() => {
+    if (timeLeft === 0) {
+      new Audio('https://bigsoundbank.com/UPLOAD/mp3/1482.mp3').play();
+    }
+  }, [timeLeft]);
+
+  useEffect(() => {
+    if (onBreak) {
+      setTimeLeft(breakCount * 60);
+    } else {
+      setTimeLeft(sessionCount * 60);
+    }
+  }, [onBreak, breakCount, sessionCount]);
+
+  useEffect(() => {
+    document.title = `${formatTime(timeLeft)} | ${onBreak ? 'Break' : 'Session'}`;
+  }, [timeLeft, onBreak]);
+
+  useEffect(() => {
+    if (sessionCount < 1) {
+      setSessionCount(1);
+    }
+    if (sessionCount > 60) {
+      setSessionCount(60);
+    }
+  }, [sessionCount]);
+
+  useEffect(() => {
+    if (breakCount < 1) {
+      setBreakCount(1);
+    }
+    if (breakCount > 60) {
+      setBreakCount(60);
+    }
+  }, [breakCount]);
 
   return (
     <main className='main'>
