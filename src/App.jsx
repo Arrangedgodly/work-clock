@@ -49,7 +49,7 @@ function App() {
 
       return () => clearInterval(intervalRef.current);
     }
-  }, [isRunning, onBreak, sessionCount, breakCount]);
+  }, [isRunning, sessionCount, breakCount]);
 
   useEffect(() => {
     if (timeLeft === 0.000) {
