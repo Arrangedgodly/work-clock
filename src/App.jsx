@@ -1,21 +1,54 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react';
 import './App.css'
 
 function App() {
-  const [breakCount, setBreakCount] = useState(5)
-  const [sessionCount, setSessionCount] = useState(25)
+  const [breakCount, setBreakCount] = useState(5);
+  const [sessionCount, setSessionCount] = useState(25);
+  const [timeLeft, setTimeLeft] = useState(25 * 60); // in seconds
+  const [isRunning, setIsRunning] = useState(false);
+  const intervalRef = useRef(null);
 
   useEffect(() => {
     if (sessionCount < 1) {
-      setSessionCount(1)
+      setSessionCount(1);
     }
-  }, [sessionCount])
+  }, [sessionCount]);
 
   useEffect(() => {
     if (breakCount < 1) {
-      setBreakCount(1)
+      setBreakCount(1);
     }
-  }, [breakCount])
+  }, [breakCount]);
+
+  useEffect(() => {
+    if (isRunning) {
+      intervalRef.current = setInterval(() => {
+        setTimeLeft(prevTimeLeft => prevTimeLeft - 1);
+      }, 1000);
+
+      return () => clearInterval(intervalRef.current);
+    }
+  }, [isRunning]);
+
+  const toggleTimer = () => {
+    setIsRunning(!isRunning);
+  };
+
+  const resetTimer = () => {
+    setIsRunning(false);
+    setSessionCount(25);
+    setBreakCount(5);
+    setTimeLeft(25 * 60);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+  };
+
+  const formatTime = (timeInSeconds) => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
 
   return (
     <main className='main'>
@@ -70,19 +103,19 @@ function App() {
           </div>
         </div>
       </div>
-      <div className='clock'>
-          <h2 className='clock-title' id='timer-label'>
-            Session
-          </h2>
-          <h2 className='clock-length' id='time-left'>
-            {sessionCount}:00
-          </h2>
+      <div className="clock">
+        <h2 className="clock-title" id="timer-label">
+          Session
+        </h2>
+        <h2 className="clock-length" id="time-left">
+          {formatTime(timeLeft)}
+        </h2>
       </div>
-      <div className='clock-controls'>
-        <button className='clock-control' id='start_stop'>
-          Start/Stop
+      <div className="clock-controls">
+        <button className="clock-control" id="start_stop" onClick={toggleTimer}>
+          {isRunning ? 'Stop' : 'Start'}
         </button>
-        <button className='clock-control' id='reset'>
+        <button className="clock-control" id="reset" onClick={resetTimer}>
           Reset
         </button>
       </div>
