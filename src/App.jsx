@@ -52,7 +52,7 @@ function App() {
   }, [isRunning, sessionCount, breakCount]);
 
   useEffect(() => {
-    if (timeLeft === 0.000) {
+    if (timeLeft === -1) {
       beep.play();
       if (activeTimer === "Session") {
         setTimeLeft(breakCount * 60);
