@@ -74,6 +74,7 @@ function App() {
       clearInterval(intervalRef.current);
     }
     beep.pause();
+    beep.currentTime = 0;
   };
 
   const formatTime = (timeInSeconds) => {
